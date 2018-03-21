@@ -12,6 +12,7 @@ use markhuot\CraftQL\FieldBehaviors\EntryQueryArguments;
 use markhuot\CraftQL\FieldBehaviors\UserQueryArguments;
 use markhuot\CraftQL\FieldBehaviors\CategoryQueryArguments;
 use markhuot\CraftQL\FieldBehaviors\TagQueryArguments;
+use markhuot\CraftQL\FieldBehaviors\SiteQueryArguments;
 
 class Query extends Schema {
 
@@ -38,30 +39,7 @@ class Query extends Schema {
         }
 
         if ($token->can('query:users')) {
-            $userResolver = function ($root, $args) {
-                $criteria = \craft\elements\User::find();
-
-                foreach ($args as $key => $value) {
-                    $criteria = $criteria->{$key}($value);
-                }
-
-                return $criteria;
-            };
-
-            $this->addField('users')
-                ->lists()
-                ->type(User::class)
-                ->use(new UserQueryArguments)
-                ->resolve(function ($root, $args) use ($userResolver) {
-                    return $userResolver($root, $args)->all();
-                });
-
-            $this->addField('user')
-                ->type(User::class)
-                ->use(new UserQueryArguments)
-                ->resolve(function ($root, $args) use ($userResolver) {
-                    return $userResolver($root, $args)->first();
-                });
+            $this->addUsersSchema();
         }
 
         if ($token->can('query:sections')) {
@@ -72,6 +50,13 @@ class Query extends Schema {
                     return \Craft::$app->sections->allSections;
                 });
         }
+
+        $this->addField('sites')
+            ->lists()
+            ->type(Site::class)
+            ->resolve(function ($root, $args) {
+                return \Craft::$app->sites->getAllSites();
+            });
     }
 
     /**
@@ -88,6 +73,7 @@ class Query extends Schema {
             ->lists()
             ->type(EntryInterface::class)
             ->use(new EntryQueryArguments)
+            ->use(new SiteQueryArguments)
             ->resolve(function ($root, $args, $context, $info) {
                 return $this->getRequest()->entries(\craft\elements\Entry::find(), $root, $args, $context, $info);
             });
@@ -96,6 +82,7 @@ class Query extends Schema {
              ->name('entriesConnection')
              ->type(EntryConnection::class)
              ->use(new EntryQueryArguments)
+             ->use(new SiteQueryArguments)
              ->resolve(function ($root, $args, $context, $info) {
                  $criteria = $this->getRequest()->entries(\craft\elements\Entry::find(), $root, $args, $context, $info);
                  list($pageInfo, $entries) = \craft\helpers\Template::paginateCriteria($criteria);
@@ -112,6 +99,7 @@ class Query extends Schema {
         $this->addField('entry')
             ->type(EntryInterface::class)
             ->use(new EntryQueryArguments)
+            ->use(new SiteQueryArguments)
             ->resolve(function ($root, $args, $context, $info) {
                 return $this->getRequest()->entries(\craft\elements\Entry::find(), $root, $args, $context, $info)->one();
             });
@@ -119,6 +107,7 @@ class Query extends Schema {
         $draftField = $this->addField('draft')
             ->type(EntryInterface::class)
             ->use(new EntryQueryArguments)
+            ->use(new SiteQueryArguments)
             ->resolve(function ($root, $args, $context, $info) {
                 return Craft::$app->entryRevisions->getDraftById($args['draftId']);
             });
@@ -151,14 +140,11 @@ class Query extends Schema {
 
         if ($this->request->globals()->count() > 0) {
             $this->addField('globals')
-                ->type(\markhuot\CraftQL\Types\GlobalsSet::class)
-                ->arguments(function ($field) {
-                    $field->addStringArgument('site');
-                    $field->addIntArgument('siteId');
-                })
+                ->type(GlobalsSet::class)
+                ->use(new SiteQueryArguments)
                 ->resolve(function ($root, $args) {
                     if (!empty($args['site'])) {
-                        $siteId = Craft::$app->getSites()->getSiteByHandle($args['site'])->id;
+                        $siteId = $args['site'];
                     }
                     else if (!empty($args['siteId'])) {
                         $siteId = $args['siteId'];
@@ -265,6 +251,7 @@ class Query extends Schema {
             ->lists()
             ->type(CategoryInterface::class)
             ->use(new CategoryQueryArguments)
+            ->use(new SiteQueryArguments)
             ->resolve(function ($root, $args) use ($categoryResolver) {
                 return $categoryResolver($root, $args)->all();
             });
@@ -272,6 +259,7 @@ class Query extends Schema {
         $this->addField('category')
             ->type(CategoryInterface::class)
             ->use(new CategoryQueryArguments)
+            ->use(new SiteQueryArguments)
             ->resolve(function ($root, $args) use ($categoryResolver) {
                 return $categoryResolver($root, $args)->first();
             });
@@ -279,6 +267,7 @@ class Query extends Schema {
         $this->addField('categoriesConnection')
             ->type(CategoryConnection::class)
             ->use(new CategoryQueryArguments)
+            ->use(new SiteQueryArguments)
             ->resolve(function ($root, $args) use ($categoryResolver) {
                 list($pageInfo, $categories) = \craft\helpers\Template::paginateCriteria($categoryResolver($root, $args));
 
@@ -287,6 +276,38 @@ class Query extends Schema {
                     'pageInfo' => $pageInfo,
                     'edges' => $categories,
                 ];
+            });
+    }
+
+    /**
+     * The fields you can query that return users
+     *
+     * @return Schema
+     */
+    function addUsersSchema() {
+        $userResolver = function ($root, $args) {
+            $criteria = \craft\elements\User::find();
+
+            foreach ($args as $key => $value) {
+                $criteria = $criteria->{$key}($value);
+            }
+
+            return $criteria;
+        };
+
+        $this->addField('users')
+            ->lists()
+            ->type(User::class)
+            ->use(new UserQueryArguments)
+            ->resolve(function ($root, $args) use ($userResolver) {
+                return $userResolver($root, $args)->all();
+            });
+
+        $this->addField('user')
+            ->type(User::class)
+            ->use(new UserQueryArguments)
+            ->resolve(function ($root, $args) use ($userResolver) {
+                return $userResolver($root, $args)->first();
             });
     }
 

@@ -25,8 +25,6 @@ class EntryQueryArguments extends FieldBehavior {
         $this->owner->addBooleanArgument('fixedOrder');
         $this->owner->addIntArgument('id')->lists();
         $this->owner->addIntArgument('limit');
-        $this->owner->addStringArgument('site');
-        $this->owner->addIntArgument('siteId');
         $this->owner->addIntArgument('nextSiblingOf');
         $this->owner->addIntArgument('offset');
         $this->owner->addStringArgument('order');

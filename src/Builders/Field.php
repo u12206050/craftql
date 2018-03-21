@@ -49,6 +49,16 @@ class Field extends BaseBuilder {
         return new InputSchema($this->request, $name);
     }
 
+    /**
+     * Create a new Enum builder
+     *
+     * @param [type] $name
+     * @return self
+     */
+    function createEnumType($name): EnumObject {
+        return new EnumObject($this->request, $name);
+    }
+
     function getConfig() {
         $type = $this->getTypeConfig();
 

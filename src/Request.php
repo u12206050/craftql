@@ -44,6 +44,10 @@ class Request {
         $this->globals = $globals;
     }
 
+    function addSites(\markhuot\CraftQL\Factories\Site $sites) {
+        $this->sites = $sites;
+    }
+
     function token() {
         return $this->token;
     }
@@ -80,6 +84,10 @@ class Request {
         return $this->globals;
     }
 
+    function sites(): \markhuot\CraftQL\Factories\Site {
+        return $this->sites;
+    }
+
     private function parseRelatedTo($relations, $id) {
         foreach ($relations as $index => &$relatedTo) {
             foreach (['element', 'sourceElement', 'targetElement'] as $key) {
@@ -112,6 +120,11 @@ class Request {
         else {
             $args['typeId'] = $args['type'];
             unset($args['type']);
+        }
+
+        if (!empty($args['site'])) {
+            $args['siteId'] = $args['site'];
+            unset($args['site']);
         }
 
         if (!empty($args['relatedTo'])) {

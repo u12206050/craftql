@@ -47,6 +47,11 @@ class ApiController extends Controller
 
     function actionIndex()
     {
+        $schema = new \markhuot\CraftQL\Builder2\SchemaType;
+        $schema->query->addStringField('helloWorld');
+        var_dump($schema->toGraphQL());
+        die;
+
         $token = false;
 
         $authorization = Craft::$app->request->headers->get('authorization');

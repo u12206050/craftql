@@ -2,14 +2,15 @@
 
 namespace markhuot\CraftQL\Builder2;
 
+use markhuot\CraftQL\Builder2\Attributes\HasFieldsConfig;
+use markhuot\CraftQL\Builder2\Attributes\HasInterfaceAttribute;
 use markhuot\CraftQL\Builder2\Attributes\HasNameAttribute;
 
 class ObjectType extends GraphQLBuilder {
 
     use HasNameAttribute;
-
-    /** @var ObjectType[] */
-    protected $fields = [];
+    use HasFieldsConfig;
+    use HasInterfaceAttribute;
 
     /**
      * ObjectType constructor.
@@ -30,15 +31,10 @@ class ObjectType extends GraphQLBuilder {
             'fields' => array_map(function (FieldType $field) {
                 return $field->toGraphQL();
             }, $this->fields),
+            'interfaces' => array_map(function (InterfaceType $interface) {
+                return $interface->toGraphQL();
+            }, $this->getInterfaces()),
         ];
-    }
-
-    function hasFields() {
-        return count($this->fields) > 0;
-    }
-
-    function addStringField($name) {
-        return $this->fields[] = new FieldType($name);
     }
 
 }

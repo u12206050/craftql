@@ -27,8 +27,4 @@ abstract class GraphQLBuilder {
         return $this->config();
     }
 
-    function newObject(string $name) {
-        return new ObjectType($name);
-    }
-
 }

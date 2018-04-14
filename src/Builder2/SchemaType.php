@@ -25,6 +25,16 @@ class SchemaType extends GraphQLBuilder {
     }
 
     /**
+     * Create a new object
+     *
+     * @param string $name
+     * @return ObjectType
+     */
+    function newObject(string $name) {
+        return new ObjectType($name);
+    }
+
+    /**
      * Get a configuration array
      *
      * @return array
@@ -42,7 +52,7 @@ class SchemaType extends GraphQLBuilder {
 
         if (!empty($this->types)) {
             $config['types'] = array_map(function(ObjectType $type) {
-                return $type->toGraphQL();
+                return $type->hasFields() ? $type->toGraphQL() : null;
             }, $this->types);
         }
 

@@ -4,10 +4,16 @@ namespace markhuot\CraftQL\Builder2;
 
 use GraphQL\Type\Definition\Type;
 use markhuot\CraftQL\Builder2\Attributes\HasNameAttribute;
+use markhuot\CraftQL\Builder2\Attributes\HasResolveAttribute;
+use markhuot\CraftQL\Builder2\Attributes\HasTypeAttribute;
 
 class FieldType extends GraphQLBuilder {
 
     use HasNameAttribute;
+    use HasResolveAttribute;
+    use HasTypeAttribute;
+
+    protected $lists = false;
 
     /** @var string */
     protected $graphQLType = null;
@@ -20,8 +26,14 @@ class FieldType extends GraphQLBuilder {
     {
         return [
             'name' => $this->name,
-            'type' => Type::string(),
+            'type' => $this->lists ? Type::listOf($this->getRawType()) : $this->getRawType(),
+            'resolve' => $this->getResolve(),
         ];
+    }
+
+    function lists($lists = true) {
+        $this->lists = $lists;
+        return $this;
     }
 
 }

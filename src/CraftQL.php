@@ -9,7 +9,9 @@ use craft\console\Application as ConsoleApplication;
 use craft\web\UrlManager;
 use craft\events\RegisterUrlRulesEvent;
 
+use markhuot\CraftQL\Events\AlterQuerySchema;
 use markhuot\CraftQL\Models\Settings;
+use markhuot\CraftQL\Types\Query;
 use yii\base\Event;
 
 use markhuot\CraftQL\Models\Token;
@@ -49,6 +51,15 @@ class CraftQL extends Plugin
                 $event->rules['POST craftql/token/<tokenId:\d+>/scopes'] = 'craftql/cp/savetokenscopes';
                 $event->rules['GET craftql/browse'] = 'craftql/cp/graphiql';
                 $event->rules['GET craftql/browse/<token:.+>'] = 'craftql/cp/graphiqlas';
+            }
+        );
+
+        Event::on(
+            Query::class,
+            AlterQuerySchema::EVENT,
+            function (AlterQuerySchema $event) {
+                $event->query->addStringField('foo')->resolve('bar');
+                $event->query->addBooleanField('baz')->resolve(function () { return false; });
             }
         );
 

@@ -24,20 +24,20 @@ class GetIconPickerFieldSchema
             ->arguments(function ($field) {
                 $field->addEnumArgument('as')
                     ->values([
-                        'Hex',
-                        'Char',
-                        'CharHex',
-                        'Span',
-                        'Class'
+                        'hex',
+                        'char',
+                        'charHex',
+                        'span',
+                        'class'
                     ]);
           })
           ->description('Use argument [as] to change the output of the icon')
           ->resolve(function ($root, $args) use ($field) {
             if (!empty($args['as'])) {
-                return (string)$root->{$field->handle}->{'getIcon'.$args['as']}();
+                return (string)$root->{$field->handle}->{'getIcon' . ucfirst($args['as'])}();
             }
 
-            return (string)$root->{$field->handle}->getIconHex();
+            return (string)$root->{$field->handle}->getChar();
           });
 
         $event->query->addStringArgument($event->sender);

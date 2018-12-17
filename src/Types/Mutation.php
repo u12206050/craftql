@@ -16,9 +16,12 @@ class Mutation extends Schema {
 
     function boot() {
 
-        $this->addField('helloWorld')
-            ->description('A sample mutation. Doesn\'t actually save anything.')
-            ->resolve('If this were a real mutation it would have saved to the database.');
+        if ($this->request->entryTypes()->all('mutate') ||
+           ($this->getRequest()->token()->can('mutate:globals') && $this->request->globals()->count())) {
+            $this->addField('helloWorld')
+                ->description('A sample mutation. Doesn\'t actually save anything.')
+                ->resolve('If this were a real mutation it would have saved to the database.');
+        }
 
         foreach ($this->request->entryTypes()->all('mutate') as $entryType) {
             $this->addField('upsert'.$entryType->getName())
@@ -27,7 +30,7 @@ class Mutation extends Schema {
                 ->use(new EntryMutationArguments);
         }
 
-        if ($this->request->globals()->count() && $this->request->token()->can('mutate:globals')) {
+        if ($this->getRequest()->token()->can('mutate:globals') && $this->request->globals()->count()) {
             /** @var \markhuot\CraftQL\Types\Globals $globalSet */
             foreach ($this->request->globals()->all() as $globalSet) {
                 $upsertField = $this->addField('upsert'.$globalSet->getName().'Globals')

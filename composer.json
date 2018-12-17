@@ -11,7 +11,8 @@
     "require": {
         "craftcms/cms": "^3.0.0",
         "webonyx/graphql-php": "^0.11.0",
-        "react/http": "^0.7"
+        "react/http": "^0.7",
+        "firebase/php-jwt": "^5.0.0"
     },
     "authors": [
         {
@@ -29,6 +30,10 @@
         "handle": "craftql",
         "developer": "Mark Huot",
         "developerUrl": "https://www.github.com/markhuot",
-        "class": "markhuot\\CraftQL\\CraftQL"
+        "class": "markhuot\\CraftQL\\CraftQL",
+        "components": {
+            "graphQl": "markhuot\\CraftQL\\Services\\GraphQLService",
+            "jwt": "markhuot\\CraftQL\\Services\\JWTService"
+        }
     }
 }

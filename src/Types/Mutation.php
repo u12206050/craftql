@@ -59,6 +59,7 @@ class Mutation extends Schema {
                 ->type(User::class)
                 ->resolve(function ($root, $args, $context, $info) {
                     $values = $args;
+                    $isNewUser = false;
 
                     if (!empty($args['id'])) {
                         $userId = @$args['id'];
@@ -70,6 +71,7 @@ class Mutation extends Schema {
                         }
                     }
                     else {
+                        $isNewUser = true;
                         $user = new \craft\elements\User;
                     }
 
@@ -100,6 +102,12 @@ class Mutation extends Schema {
                                 }
                             }
                         }
+                    }
+
+                    if ($isNewUser) {
+                        // Send the activation email
+                        $emailSent = Craft::$app->getUsers()->sendActivationEmail($user);
+                        Craft::$app->getUsers()->assignUserToGroups($user->id, [1]);
                     }
 
                     if (!empty($permissions)) {

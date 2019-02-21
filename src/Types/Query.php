@@ -389,6 +389,7 @@ class Query extends Schema {
             return  [
                 'user' => $user,
                 'token' => $tokenString,
+                'groups' => $user->getGroups()
             ];
         });
 

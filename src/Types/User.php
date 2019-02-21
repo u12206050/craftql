@@ -32,6 +32,12 @@ class User extends Schema {
         $this->addDateField('dateUpdated')->nonNull();
         $this->addDateField('lastLoginDate')->nonNull();
 
+        $this->addField('groups')
+            ->lists()
+            ->resolve(function ($root, $args, $context, $info) {
+                return array_column($root->groups, 'name');
+            });
+
         $fieldLayoutId = Craft::$app->getFields()->getLayoutByType(CraftUserElement::class)->id;
         $this->addFieldsByLayoutId($fieldLayoutId);
 

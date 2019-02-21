@@ -11,7 +11,6 @@ class Authorize extends Schema {
     function boot() {
         $this->addField('user')->type(User::class);
         $this->addStringField('token');
-        $this->addField('groups')->type(UserGroupModel::class);
     }
 
 }
